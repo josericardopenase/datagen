@@ -1,0 +1,9 @@
+
+
+- Metrica como de integrado esta el inpainting en la imagen
+    - https://github.com/SayedNadim/Inpainting-Evaluation-Metrics
+- Crop mal echo, baja resolución
+- Respecto a la  elección del puntu utilizar una distribución de probabilidad ej. gaussiana
+  sacar el punto haciendo sampling de la distribucion. Puede ser algo mas "simple"
+  midiendo distancia del centro
+-
