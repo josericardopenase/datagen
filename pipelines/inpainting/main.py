@@ -23,7 +23,7 @@ class InpaintingDatasetGenerator:
             original_image=cropped_image,
             mask_image=mask
         )
-        inpaint = inpainter.inpaint()
+        inpaint = inpainter.inpaint()[0]
         image_paster = ImagePaster(original_image=inpaint, pasted_image=mask)
         pasted = image_paster.paste(point)
 
