@@ -24,7 +24,7 @@ class InpaintingDatasetGenerator:
             mask_image=mask
         )
         inpaint = inpainter.inpaint()[0]
-        image_paster = ImagePaster(original_image=inpaint, pasted_image=mask)
+        image_paster = ImagePaster(original_image=self.image, pasted_image=inpaint)
         pasted = image_paster.paste(point)
 
         plot_images(
