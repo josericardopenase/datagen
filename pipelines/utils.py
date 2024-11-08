@@ -2,7 +2,7 @@ from matplotlib import pyplot as plt
 from PIL import Image, ImageDraw
 from typing import Tuple
 
-def plot_images(images, titles, main_title="Images"):
+def plot_images(images, titles, main_title="Images", save_as="result.png"):
     num_images = len(images)
     plt.figure(figsize=(5 * num_images, 5))
     plt.suptitle(main_title, fontsize=16)
@@ -14,7 +14,7 @@ def plot_images(images, titles, main_title="Images"):
         plt.axis("off")
 
     plt.show()
-    plt.savefig('result.png')
+    plt.savefig(save_as)
 
 def draw_square_inside_image(
         image: Image.Image,
@@ -22,7 +22,7 @@ def draw_square_inside_image(
         center_point: Tuple[int, int],
         border_width: int = 3,
         center_radius: int = 0,
-        color="red"
+        color="red",
 ) -> Image.Image:
     image_with_square = image.copy()
     draw = ImageDraw.Draw(image_with_square)

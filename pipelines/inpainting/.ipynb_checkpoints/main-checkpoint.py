@@ -17,14 +17,14 @@ class InpaintingDatasetGenerator:
         cropper = ImageCropper(self.image)
         cropped_image = cropper.crop(point, resolution)
         mask_creator = MaskCreator(shape=shape)
-        mask = mask_creator.create((resolution[0] // 2, resolution[1] // 2), resolution, size_of_shape=0.15)
+        mask = mask_creator.create((resolution[0] // 2, resolution[1] // 2), resolution, size_of_shape=0.1)
         inpainter = StableDiffusionImageInpainter(
-            prompt="a boat",
+            prompt="a boat crossing the sea in the water",
             original_image=cropped_image,
             mask_image=mask
         )
         inpaint = inpainter.inpaint()[0]
-        image_paster = ImagePaster(original_image=inpaint, pasted_image=mask)
+        image_paster = ImagePaster(original_image=self.image, pasted_image=inpaint)
         pasted = image_paster.paste(point)
 
         plot_images(
