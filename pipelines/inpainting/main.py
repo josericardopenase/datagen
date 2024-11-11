@@ -74,4 +74,4 @@ for iteration in range(0, 10):
     dataset_generator.generate(
         image=image,
         resolution=(512, 512),
-        save_as='result_{}_{}.png'.format(folder, iteration))
+        save_as='result/result_{}.png'.format( iteration))
