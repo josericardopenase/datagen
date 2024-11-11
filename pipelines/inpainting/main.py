@@ -1,7 +1,7 @@
 from typing import Tuple
 from PIL import Image
 
-from pipelines.inpainting.dependencies.bounding_box_generator import SegmentationMaskGenerator
+from pipelines.inpainting.dependencies.segmentation_mask_generator import SegmentationMaskGenerator
 from pipelines.inpainting.dependencies.image_cropper import ImageCropper
 from pipelines.inpainting.dependencies.image_inpainter import StableDiffusionImageInpainter
 from pipelines.inpainting.dependencies.image_paster import ImagePaster
@@ -22,12 +22,12 @@ class InpaintingDatasetGenerator:
         cropped_image.save("img1.png")
         mask_creator = MaskCreator(shape=shape)
         mask = mask_creator.create((resolution[0] // 2, resolution[1] // 2), resolution, size_of_shape=0.15)
-        inpainter = StableDiffusionImageInpainter(
+        inpainter = StableDiffusionImageInpainter()
+        inpaint = inpainter.inpaint(
             prompt="a boat crossing the sea",
             original_image=cropped_image,
             mask_image=mask
-        )
-        inpaint = inpainter.inpaint()[0]
+        )[0]
         inpaint.save("img2.png")
         image_paster = ImagePaster(original_image=self.image, pasted_image=inpaint)
         pasted = image_paster.paste(point)
