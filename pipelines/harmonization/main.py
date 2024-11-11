@@ -3,6 +3,7 @@ from PIL import Image
 
 from pipelines.dependencies.image_cropper import ImageCropper
 from pipelines.dependencies.image_harmonizers.image_harmonizer import ImageHarmonizer
+from pipelines.dependencies.image_harmonizers.libcom_image_harmonizer import LibcomImageHarmonizer
 from pipelines.dependencies.image_harmonizers.mock_image_harnonizer import MockImageHarmonizer
 from pipelines.dependencies.image_inpainters.image_inpainter import ImageInpainter
 from pipelines.dependencies.image_inpainters.mock_image_inpainter import MockImageInpainter
@@ -114,7 +115,7 @@ for iteration in range(0, 1):
         inpainting_mask_generator=TransparentMaskGenerator(fill=False, border_size=21, centered_border=True),
         transparent_image_cleaner=TransparentImageCleaner(threshold=0.4),
         inpainter=MockImageInpainter(),
-        harmonizer=MockImageHarmonizer()
+        harmonizer=LibcomImageHarmonizer()
     )
     dataset_generator.generate(
         image=image,
