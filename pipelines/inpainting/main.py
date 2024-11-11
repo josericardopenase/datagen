@@ -1,5 +1,6 @@
 from typing import Tuple
 from PIL import Image
+from fontTools.unicodedata import block
 
 from pipelines.inpainting.dependencies.segmentation_mask_generator import SegmentationMaskGenerator
 from pipelines.inpainting.dependencies.image_cropper import ImageCropper
@@ -26,29 +27,35 @@ class InpaintingDatasetGenerator:
 
 
     def generate(self,  image : Image.Image, resolution: Tuple[int, int], save_as="result1"):
-        point = (450, 450)
+        point_of_crop = (450, 450)
         cropped_image = self.image_cropper.crop(
             image=image,
-            center=point,
+            center=point_of_crop,
             resolution=resolution)
-        mask = self.mask_creator.create((resolution[0] // 2, resolution[1] // 2), resolution, size_of_shape=0.15)
-        inpaint = self.inpainter.inpaint(
+        mask = self.mask_creator.create(
+            center=(resolution[0] // 2, resolution[1] // 2),
+            resolution=resolution
+        )
+        inpainted_image = self.inpainter.inpaint(
             prompt="a boat crossing the sea",
             original_image=cropped_image,
             mask_image=mask
         )
-        image_paster = ImagePaster()
-        pasted = image_paster.paste(original_image=image, pasted_image=inpaint, center=point)
+        pasted = self.image_paster.paste(
+            original_image=image,
+            pasted_image=inpainted_image,
+            center=point_of_crop
+        )
         segmentation_mask = self.segmentation_mask_generator.generate(image, pasted)
 
         plot_images(
             [
                 image,
-                draw_square_inside_image(image, cropped_image.size, point, border_width=7, center_radius=10),
+                draw_square_inside_image(image, cropped_image.size, point_of_crop, border_width=7, center_radius=10),
                 cropped_image,
                 mask,
                 (np.array(cropped_image.convert('1')) + np.array(mask.convert('1'))),
-                inpaint,
+                inpainted_image,
                 pasted,
                 segmentation_mask
             ],
@@ -65,11 +72,15 @@ for iteration in range(0, 10):
     dataset_generator = InpaintingDatasetGenerator(
         inpainter=StableDiffusionImageInpainter(),
         mask_creator=MaskCreator(
-            shape=Image.open("assets/masks/square_mask.png")
+            shape=Image.open("assets/masks/square_mask.png"),
+            size_of_shape = 0.15
         ),
         image_cropper=ImageCropper(),
         image_paster=ImagePaster(),
-        segmentation_mask_generator=SegmentationMaskGenerator(0.995, 8)
+        segmentation_mask_generator=SegmentationMaskGenerator(
+            threshold=0.995,
+            block_size=8
+        )
     )
     dataset_generator.generate(
         image=image,
