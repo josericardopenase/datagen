@@ -78,7 +78,7 @@ class HarmonizationDatasetGenerator:
                 pasted,
                 draw_square_inside_image(pasted, fg_shape, point_of_crop, border_width=7, center_radius=10)
             ],
-            ["Imágen original", "Posición de recorte", "Recorte", "Barco incluido", "Mascara de harmonización","Imágen harmonizada",  "Máscara de inpainting", "Imagen con inpainting realizado", "Imágen original con región copiada", "Bounding box añadida"],
+            ["Imagen original", "Posición de recorte", "Recorte", "Barco incluido", "Mascara de harmonización","Imágen harmonizada",  "Máscara de inpainting", "Imagen con inpainting realizado", "Imágen original con región copiada", "Bounding box añadida"],
             main_title="Pipeline",
             save_as=save_as
         )
