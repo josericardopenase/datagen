@@ -3,8 +3,10 @@ from PIL import Image
 from libcom import PainterlyHarmonizationModel
 from libcom.utils.process_image import make_image_grid
 
+from pipelines.dependencies.image_harmonizers.image_harmonizer import ImageHarmonizer
 
-class LibcomImageHarmonizer:
+
+class LibcomImageHarmonizer(ImageHarmonizer):
     def __init__(self, device: int = 0, model_type: str = 'PHDNet'):
         self.model = PainterlyHarmonizationModel(device=device, model_type=model_type)
 
