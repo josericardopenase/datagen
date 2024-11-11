@@ -71,4 +71,7 @@ for iteration in range(0, 10):
         image_paster=ImagePaster(),
         segmentation_mask_generator=SegmentationMaskGenerator(0.995, 8)
     )
-    dataset_generator.generate((512, 512), save_as='result_{}_{}.png'.format(folder, iteration))
+    dataset_generator.generate(
+        image=image,
+        resolution=(512, 512),
+        save_as='result_{}_{}.png'.format(folder, iteration))
