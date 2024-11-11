@@ -7,6 +7,7 @@ from pipelines.dependencies.image_harmonizers.libcom_image_harmonizer import Lib
 from pipelines.dependencies.image_harmonizers.mock_image_harnonizer import MockImageHarmonizer
 from pipelines.dependencies.image_inpainters.image_inpainter import ImageInpainter
 from pipelines.dependencies.image_inpainters.mock_image_inpainter import MockImageInpainter
+from pipelines.dependencies.image_inpainters.stable_diffusion_image_inpainter import StableDiffusionImageInpainter
 from pipelines.dependencies.image_paster import ImagePaster
 from pipelines.harmonization.dependencies import transparent_image_cleaner
 from pipelines.harmonization.dependencies.image_compositor import ImageCompositor
@@ -58,7 +59,7 @@ class HarmonizationDatasetGenerator:
         harmonization_mask = self.generate_harmonization_mask(cleaned_boat, cropped_image)
         harmonized_image = self.harmonizer.harmonize(composited_image, harmonization_mask)
         inpainting_mask, fg_shape = self.generate_inpainting_mask(cleaned_boat, cropped_image, fg_shape)
-        inpainted_image = self.inpainter.inpaint(harmonized_image, inpainting_mask)
+        inpainted_image = self.inpainter.inpaint(harmonized_image, inpainting_mask, prompt="A boat")
         pasted = self.image_paster.paste(
             original_image=image,
             pasted_image=inpainted_image,
@@ -114,7 +115,7 @@ for iteration in range(0, 1):
         harmonization_mask_generator=TransparentMaskGenerator(fill=True),
         inpainting_mask_generator=TransparentMaskGenerator(fill=False, border_size=21, centered_border=True),
         transparent_image_cleaner=TransparentImageCleaner(threshold=0.4),
-        inpainter=MockImageInpainter(),
+        inpainter=StableDiffusionImageInpainter(),
         harmonizer=LibcomImageHarmonizer()
     )
     dataset_generator.generate(
