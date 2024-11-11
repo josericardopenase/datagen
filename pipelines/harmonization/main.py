@@ -1,15 +1,11 @@
 from typing import Tuple
 from PIL import Image
-
 from pipelines.dependencies.image_cropper import ImageCropper
 from pipelines.dependencies.image_harmonizers.image_harmonizer import ImageHarmonizer
 from pipelines.dependencies.image_harmonizers.libcom_image_harmonizer import LibcomImageHarmonizer
-from pipelines.dependencies.image_harmonizers.mock_image_harnonizer import MockImageHarmonizer
 from pipelines.dependencies.image_inpainters.image_inpainter import ImageInpainter
-from pipelines.dependencies.image_inpainters.mock_image_inpainter import MockImageInpainter
 from pipelines.dependencies.image_inpainters.stable_diffusion_image_inpainter import StableDiffusionImageInpainter
 from pipelines.dependencies.image_paster import ImagePaster
-from pipelines.harmonization.dependencies import transparent_image_cleaner
 from pipelines.harmonization.dependencies.image_compositor import ImageCompositor
 from pipelines.harmonization.dependencies.transparent_image_adjuster import TransparentImageAdjuster
 from pipelines.harmonization.dependencies.transparent_image_cleaner import TransparentImageCleaner
