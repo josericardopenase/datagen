@@ -59,7 +59,7 @@ class HarmonizationDatasetGenerator:
         harmonization_mask = self.generate_harmonization_mask(cleaned_boat, cropped_image)
         harmonized_image = self.harmonizer.harmonize(composited_image, harmonization_mask)
         inpainting_mask, fg_shape = self.generate_inpainting_mask(cleaned_boat, cropped_image, fg_shape)
-        inpainted_image = self.inpainter.inpaint(harmonized_image, inpainting_mask, prompt="A boat")
+        inpainted_image = self.inpainter.inpaint(harmonized_image, inpainting_mask, prompt="A cargo ship")
         pasted = self.image_paster.paste(
             original_image=image,
             pasted_image=inpainted_image,
@@ -78,7 +78,7 @@ class HarmonizationDatasetGenerator:
                 pasted,
                 draw_square_inside_image(pasted, fg_shape, point_of_crop, border_width=7, center_radius=10)
             ],
-            ["Imagen original", "Posición de recorte", "Recorte", "Barco incluido", "Mascara de harmonización","Imágen harmonizada",  "Máscara de inpainting", "Imagen con inpainting realizado", "Imágen original con región copiada", "Bounding box añadida"],
+            ["Imagen original", "Posición de recorte", "Recorte", "Barco incluído", "Máscara de harmonización","Imagen harmonizada",  "Máscara de inpainting", "Imagen con inpainting realizado", "Imagen original con región copiada", "Bounding box añadida"],
             main_title="Pipeline",
             save_as=save_as
         )
@@ -113,7 +113,7 @@ for iteration in range(0, 1):
         image_compositor=ImageCompositor(),
         image_shape_adjuster=TransparentImageAdjuster(),
         harmonization_mask_generator=TransparentMaskGenerator(fill=True),
-        inpainting_mask_generator=TransparentMaskGenerator(fill=False, border_size=21, centered_border=True),
+        inpainting_mask_generator=TransparentMaskGenerator(fill=False, border_size=17, centered_border=True),
         transparent_image_cleaner=TransparentImageCleaner(threshold=0.4),
         inpainter=StableDiffusionImageInpainter(),
         harmonizer=LibcomImageHarmonizer()
