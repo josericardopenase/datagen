@@ -54,7 +54,7 @@ class InpaintingDatasetGenerator:
 
 folder = sys.argv[0] if sys.argv[0] else 0
 
-for x in range(0, 1):
+for x in range(0, 10):
     image = Image.open("assets/bgs/bg.jpg")
     shape = Image.open("assets/masks/square_mask.png")
     dataset_generator = InpaintingDatasetGenerator(
