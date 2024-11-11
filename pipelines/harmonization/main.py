@@ -119,4 +119,5 @@ for iteration in range(0, 1):
     dataset_generator.generate(
         image=image,
         resolution=(512, 512),
+        save_as="result.png"
         )
