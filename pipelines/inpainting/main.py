@@ -3,7 +3,7 @@ from PIL import Image
 
 from pipelines.inpainting.dependencies.segmentation_mask_generator import SegmentationMaskGenerator
 from pipelines.dependencies.image_cropper import ImageCropper
-from pipelines.inpainting.dependencies.image_inpainter import StableDiffusionImageInpainter, ImageInpainter
+from pipelines.dependencies.image_inpainters.stable_diffusion_image_inpainter import StableDiffusionImageInpainter, ImageInpainter
 from pipelines.dependencies.image_paster import ImagePaster
 from pipelines.inpainting.dependencies.mask_creator import MaskCreator
 from pipelines.utils import plot_images, draw_square_inside_image
@@ -12,11 +12,11 @@ import sys
 
 class InpaintingDatasetGenerator:
     def __init__(self,
-                 inpainter: ImageInpainter,
                  mask_creator: MaskCreator,
                  image_cropper : ImageCropper,
                  image_paster : ImagePaster,
-                 segmentation_mask_generator : SegmentationMaskGenerator
+                 segmentation_mask_generator : SegmentationMaskGenerator,
+                 inpainter: ImageInpainter,
                  ):
         self.inpainter = inpainter
         self.mask_creator = mask_creator

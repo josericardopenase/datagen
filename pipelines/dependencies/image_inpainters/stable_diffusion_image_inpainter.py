@@ -1,14 +1,7 @@
-from abc import ABC, abstractmethod
-
 from diffusers import StableDiffusionInpaintPipeline
 import torch
 from PIL import Image
-
-
-class ImageInpainter(ABC):
-    @abstractmethod
-    def inpaint(self,  original_image: Image.Image, mask_image: Image.Image, prompt : str ="") -> Image.Image:
-        ...
+from pipelines.dependencies.image_inpainters.image_inpainter import ImageInpainter
 
 
 class StableDiffusionImageInpainter(ImageInpainter):
