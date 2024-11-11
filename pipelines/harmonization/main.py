@@ -40,7 +40,7 @@ class HarmonizationDatasetGenerator:
 
     def generate(self,  image : Image.Image, resolution: Tuple[int, int], save_as="result1"):
         point_of_crop = (450, 450)
-        png_boat = Image.open("../../assets/boats/boat.png")
+        png_boat = Image.open("assets/boats/boat.png")
         cropped_image = self.image_cropper.crop(
             image=image,
             center=point_of_crop,
@@ -102,7 +102,7 @@ class HarmonizationDatasetGenerator:
 
 
 folder = sys.argv[0] if sys.argv[0] else 0
-image = Image.open("../../assets/bgs/bg.jpg")
+image = Image.open("assets/bgs/bg.jpg")
 
 for iteration in range(0, 1):
     dataset_generator = HarmonizationDatasetGenerator(
