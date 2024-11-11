@@ -1,11 +1,19 @@
+from abc import ABC, abstractmethod
+
 from diffusers import StableDiffusionInpaintPipeline
 import torch
 from PIL import Image
 
-class StableDiffusionImageInpainter:
+
+class ImageInpainter(ABC):
+    @abstractmethod
+    def inpaint(self,  original_image: Image.Image, mask_image: Image.Image, prompt : str ="") -> Image.Image:
+        ...
+
+
+class StableDiffusionImageInpainter(ImageInpainter):
     def __init__(
         self,
-        prompt,
         model_id="stabilityai/stable-diffusion-2-inpainting",
         num_inference_steps=50,
         strength=0.75,
@@ -15,7 +23,6 @@ class StableDiffusionImageInpainter:
         self.num_inference_steps = num_inference_steps
         self.strength = strength
         self.guidance_scale = guidance_scale
-        self.prompt = prompt
 
     def inpaint(self,  original_image: Image.Image, mask_image: Image.Image, prompt : str ="") -> Image.Image:
         pipe = StableDiffusionInpaintPipeline.from_pretrained(
@@ -23,7 +30,7 @@ class StableDiffusionImageInpainter:
         )
         pipe = pipe.to("cuda")
         images = pipe(
-            prompt=self.prompt,
+            prompt=prompt,
             image=original_image,
             mask_image=mask_image,
         ).images
