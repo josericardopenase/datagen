@@ -1,11 +1,10 @@
 from typing import Tuple
 from PIL import Image
-from fontTools.unicodedata import block
 
 from pipelines.inpainting.dependencies.segmentation_mask_generator import SegmentationMaskGenerator
-from pipelines.inpainting.dependencies.image_cropper import ImageCropper
+from pipelines.dependencies.image_cropper import ImageCropper
 from pipelines.inpainting.dependencies.image_inpainter import StableDiffusionImageInpainter, ImageInpainter
-from pipelines.inpainting.dependencies.image_paster import ImagePaster
+from pipelines.dependencies.image_paster import ImagePaster
 from pipelines.inpainting.dependencies.mask_creator import MaskCreator
 from pipelines.utils import plot_images, draw_square_inside_image
 import numpy as np

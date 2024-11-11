@@ -1,7 +1,7 @@
 from PIL import Image
 from matplotlib import pyplot as plt
-from pipelines.inpainting.dependencies.image_cropper import ImageCropper
-from pipelines.inpainting.dependencies.image_paster import ImagePaster
+from pipelines.dependencies.image_cropper import ImageCropper
+from pipelines.dependencies.image_paster import ImagePaster
 from pipelines.inpainting.dependencies.mask_creator import MaskCreator
 
 image = Image.open("assets/bgs/bg.jpg")
