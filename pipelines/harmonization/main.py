@@ -11,6 +11,7 @@ from pipelines.dependencies.image_harmonizers.libcom_image_harmonizer import Lib
 from pipelines.dependencies.image_inpainters.image_inpainter import ImageInpainter
 from pipelines.dependencies.image_inpainters.stable_diffusion_image_inpainter import StableDiffusionImageInpainter
 from pipelines.dependencies.image_paster import ImagePaster
+from pipelines.dependencies.point_extractors.mmseg_point_extractor import MMSegPointExtractor
 from pipelines.dependencies.point_extractors.mock_point_extractor import MockPointExtractor
 from pipelines.dependencies.point_extractors.point_extractor import PointExtractor
 from pipelines.harmonization.dependencies.image_compositor import ImageCompositor
@@ -124,7 +125,7 @@ folder = sys.argv[0] if sys.argv[0] else 0
 
 for iteration in range(0, 1):
     dataset_generator = HarmonizationDatasetGenerator(
-        point_extractor=MockPointExtractor((450, 450)),
+        point_extractor=MMSegPointExtractor(),
         background_image_generator=MockImageGenerator("assets/bgs/bg.jpg"),
         boat_image_generator=MockImageGenerator("assets/boats/boat.png"),
         background_remover=MockBackgroundRemover(),
