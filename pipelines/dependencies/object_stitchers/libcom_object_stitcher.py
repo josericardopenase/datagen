@@ -1,39 +1,54 @@
-from typing import Tuple
+import os
+from typing import Tuple, List
 from PIL import Image
 import numpy as np
 from pipelines.dependencies.object_stitchers.object_stitcher import ObjectStitcher
-from libcom import MureObjectStitchModel
+from libcom import Mure_ObjectStitchModel
 import torch
-
+import tempfile
 
 class LibcomObjectStitcher(ObjectStitcher):
-    def __init__(self, device: str = 'cpu', model_type: str = 'ObjectStitch', sampler: str = 'plms'):
+    def __init__(self, device: str = 'cuda', model_type: str = 'ObjectStitch', sampler: str = 'plms'):
         self.device = torch.device(device)
-        self.model = MureObjectStitchModel(device=self.device, model_type=model_type, sampler=sampler)
+        self.model = Mure_ObjectStitchModel(device=self.device, model_type=model_type, sampler=sampler)
 
-    def stitch(self, bg: Image.Image, fg: Image.Image, fg_mask: Image.Image,
-               bbox: Tuple[int, int, int, int]) -> Image.Image:
-        # Convertir las imágenes de PIL a arrays de numpy
-        bg_np = np.array(bg.convert("RGB"))
-        fg_np = np.array(fg.convert("RGB"))
-        fg_mask_np = np.array(fg_mask.convert("L"))
+    def save_temp_image(self, img: Image.Image, suffix: str = ".png") -> str:
+        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=suffix)
+        img.save(temp_file.name)
+        return temp_file.name
 
-        # Convertir bbox a lista en formato [x1, y1, x2, y2]
+    def stitch(self, bg: Image.Image, fg_list: List[Image.Image], fg_mask_list: List[Image.Image],
+               bbox: Tuple[int, int, int, int], num_samples: int = 1) -> Image.Image:
+        # Guardar la imagen de fondo como archivo temporal
+        bg_path = self.save_temp_image(bg.convert("RGB"))
+
+        # Guardar las imágenes de primer plano y máscaras como archivos temporales
+        fg_paths = [self.save_temp_image(fg.convert("RGB")) for fg in fg_list]
+        fg_mask_paths = [self.save_temp_image(mask.convert("L")) for mask in fg_mask_list]
+
         x1, y1, x2, y2 = bbox
         bbox_list = [x1, y1, x2, y2]
 
-        # Ejecutar el modelo de composición con el método __call__
-        result_images = self.model(
-            background_image=bg_np,
-            foreground_image=fg_np,
-            foreground_mask=fg_mask_np,
-            bbox=bbox_list,
-            num_samples=1,
-            sample_steps=25,
-            guidance_scale=5,
-            seed=321
-        )
+        try:
+            # Ejecutar el modelo con las rutas de los archivos
+            comp_images, show_fg_img = self.model(
+                background_image=bg_path,
+                foreground_image=fg_paths,
+                foreground_mask=fg_mask_paths,
+                bbox=bbox_list,
+                num_samples=num_samples,
+                sample_steps=25,
+                guidance_scale=5,
+                seed=321
+            )
+        finally:
+            # Eliminar archivos temporales
+            os.remove(bg_path)
+            for path in fg_paths:
+                os.remove(path)
+            for path in fg_mask_paths:
+                os.remove(path)
 
         # Convertir el resultado a una imagen PIL y devolver la primera imagen generada
-        result_img = Image.fromarray(result_images[0])
+        result_img = Image.fromarray(comp_images[0])
         return result_img

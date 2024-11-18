@@ -2,7 +2,6 @@ from typing import Tuple
 from PIL import Image
 from pipelines.dependencies.image_cropper import ImageCropper
 from pipelines.dependencies.image_paster import ImagePaster
-from pipelines.dependencies.object_stitchers.libcom_object_stitcher import LibcomObjectStitcher
 from pipelines.dependencies.object_stitchers.mock_object_stitcher import MockObjectStitcher
 from pipelines.dependencies.object_stitchers.object_stitcher import ObjectStitcher
 from pipelines.harmonization.dependencies.image_compositor import ImageCompositor
@@ -30,7 +29,7 @@ class ObjectStitcherDatasetGenerator:
 
     def generate(self,  image : Image.Image, resolution: Tuple[int, int], save_as="result1"):
         point_of_crop = (450, 450)
-        boat = Image.open("../../assets/boats/boat.png")
+        boat = Image.open("assets/boats/boat.png")
         cropped_image = self.image_cropper.crop(
             image=image,
             center=point_of_crop,
@@ -38,16 +37,20 @@ class ObjectStitcherDatasetGenerator:
 
         mask, bbox, shape = self.mask_generator.generate(cropped_image.size, (cropped_image.size[0]//2, cropped_image.size[1]//2), (150, 80))
 
+
+        """
         stitched_image = self.object_stitcher.stitch(
             bg=cropped_image,
-            fg=boat,
-            fg_mask=mask,
+            fg_list=[boat,],
+            fg_mask_list=[mask,],
             bbox=bbox
         )
+        """
+
 
         pasted = self.image_paster.paste(
             original_image=image,
-            pasted_image=stitched_image,
+            pasted_image=cropped_image,
             center=point_of_crop
         )
 
@@ -60,7 +63,6 @@ class ObjectStitcherDatasetGenerator:
                 mask,
                 draw_square_inside_image(cropped_image, shape, (cropped_image.size[0]//2, cropped_image.size[1]//2), border_width=4, center_radius=5),
                 boat,
-                stitched_image,
                 pasted,
             ],
             ["Imagen original", "Posición de recorte", "Recorte", "Máscara de snittching", "Bounding box", "Imágen foreground" ,"Imágen con stitched",    "Imágen original con región copiada"],
@@ -73,7 +75,7 @@ class ObjectStitcherDatasetGenerator:
 
 
 folder = sys.argv[0] if sys.argv[0] else 0
-image = Image.open("../../assets/bgs/bg.jpg")
+image = Image.open("assets/bgs/bg.jpg")
 
 for iteration in range(0, 1):
     dataset_generator = ObjectStitcherDatasetGenerator(
@@ -82,7 +84,7 @@ for iteration in range(0, 1):
         image_compositor=ImageCompositor(),
         image_shape_adjuster=TransparentImageAdjuster(),
         box_mask_generator=BoxMaskGenerator(),
-        object_stitcher=LibcomObjectStitcher()
+        object_stitcher=MockObjectStitcher()
     )
     dataset_generator.generate(
         image=image,

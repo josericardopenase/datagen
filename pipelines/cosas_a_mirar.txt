@@ -1,0 +1,4 @@
+1. Metricas que usan modelos generativos para lo realistas que son fotos
+2. Buscar discriminadores buenos de barcos
+3. Pensar en como entrenar undiscriminador inpirarse "gan"
+
