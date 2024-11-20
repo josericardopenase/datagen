@@ -1,5 +1,7 @@
 OBJECT SNITCH
 
+INTERESANTE! https://dreambooth.github.io/
+
 https://libcom.readthedocs.io/en/latest/api.html#module-libcom.objectstitch
 
 RANKING MEJORES IMAGE HARMONIZATION

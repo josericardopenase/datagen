@@ -70,7 +70,7 @@ class HarmonizationDatasetGenerator:
             background=background_cropped_image,
             foreground=cleaned_boat,
             center=(background_cropped_image.size[0]//2, background_cropped_image.size[1]//2),
-            size_of=0.4
+            size_of=0.65
         )
 
         harmonization_mask = self.generate_harmonization_mask(cleaned_boat, background_cropped_image)
@@ -107,7 +107,7 @@ class HarmonizationDatasetGenerator:
             background=Image.new("RGB", cropped_image.size, color=(0, 0, 0)),
             foreground=self.inpainting_mask_generator.generate(cleaned_boat),
             center=(cropped_image.size[0] // 2, cropped_image.size[1] // 2),
-            size_of=0.4
+            size_of=0.65
         )
         return composited_inpainting_mask, fg_shape
 
@@ -116,17 +116,17 @@ class HarmonizationDatasetGenerator:
             background=Image.new("RGB", cropped_image.size, color=(0, 0, 0)),
             foreground=self.harmonization_mask_generator.generate(cleaned_boat),
             center=(cropped_image.size[0] // 2, cropped_image.size[1] // 2),
-            size_of=0.4
+            size_of=0.65
         )
         return composited_harmonization_mask
 
 
 folder = sys.argv[0] if sys.argv[0] else 0
 
-for iteration in range(0, 1):
+for iteration in range(0, 10):
     dataset_generator = HarmonizationDatasetGenerator(
         point_extractor=MMSegPointExtractor(),
-        background_image_generator=MockImageGenerator("assets/bgs/bg.jpg"),
+        background_image_generator=MockImageGenerator("assets/bgs/bg2.jpg"),
         boat_image_generator=MockImageGenerator("assets/boats/boat.png"),
         background_remover=MockBackgroundRemover(),
         image_cropper=ImageCropper(),
