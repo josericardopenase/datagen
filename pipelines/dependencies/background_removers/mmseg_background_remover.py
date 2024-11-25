@@ -1,3 +1,4 @@
+from matplotlib import pyplot as plt
 from PIL import Image
 import numpy as np
 from pipelines.dependencies.background_removers.background_remover import BackgroundRemover
@@ -25,7 +26,7 @@ class MMSegBackgroundRemover(BackgroundRemover):
     def is_same_color(pixel_color, target_color):
         return np.array_equal(pixel_color[:3], target_color[:3])
 
-    def remove_small_pixel_groups(self, final_image, min_size=500):
+    def remove_small_pixel_groups(self, final_image, min_size=100500):
         visited = set()
         for x in range(final_image.shape[0]):
             for y in range(final_image.shape[1]):
@@ -55,3 +56,14 @@ class MMSegBackgroundRemover(BackgroundRemover):
                     stack.append((nx, ny))
 
         return pixel_group
+
+
+remover = MMSegBackgroundRemover(
+    api=MMSegAPI(url="http://100.103.218.9:4553/v1"),
+    category="ship"
+)
+
+
+plt.imshow(remover.remove(Image.open("../../../assets/boats/boat_with_bg.jpg")))
+plt.show()
+
