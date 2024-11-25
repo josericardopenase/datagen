@@ -50,5 +50,5 @@ class LibcomObjectStitcher(ObjectStitcher):
                 os.remove(path)
 
         # Convertir el resultado a una imagen PIL y devolver la primera imagen generada
-        result_img = Image.fromarray(comp_images[0])
+        result_img = Image.fromarray(comp_images)
         return result_img

@@ -2,7 +2,7 @@ from typing import Tuple
 from PIL import Image
 from pipelines.dependencies.image_cropper import ImageCropper
 from pipelines.dependencies.image_paster import ImagePaster
-from pipelines.dependencies.object_stitchers.mock_object_stitcher import MockObjectStitcher
+from pipelines.dependencies.object_stitchers.libcom_object_stitcher import LibcomObjectStitcher
 from pipelines.dependencies.object_stitchers.object_stitcher import ObjectStitcher
 from pipelines.harmonization.dependencies.image_compositor import ImageCompositor
 from pipelines.harmonization.dependencies.transparent_image_adjuster import TransparentImageAdjuster
@@ -29,28 +29,24 @@ class ObjectStitcherDatasetGenerator:
 
     def generate(self,  image : Image.Image, resolution: Tuple[int, int], save_as="result1"):
         point_of_crop = (450, 450)
-        boat = Image.open("assets/boats/boat.png")
+        boat = Image.open("assets/boats/cargo_ship.png")
         cropped_image = self.image_cropper.crop(
             image=image,
             center=point_of_crop,
             resolution=resolution)
 
-        mask, bbox, shape = self.mask_generator.generate(cropped_image.size, (cropped_image.size[0]//2, cropped_image.size[1]//2), (150, 80))
+        mask, bbox, shape = self.mask_generator.generate(cropped_image.size, (cropped_image.size[0]//2, cropped_image.size[1]//2), (350, 270))
 
-
-        """
         stitched_image = self.object_stitcher.stitch(
             bg=cropped_image,
-            fg_list=[boat,],
+            fg_list=[boat,boat2, boat3],
             fg_mask_list=[mask,],
             bbox=bbox
         )
-        """
-
 
         pasted = self.image_paster.paste(
             original_image=image,
-            pasted_image=cropped_image,
+            pasted_image=stitched_image,
             center=point_of_crop
         )
 
@@ -63,7 +59,8 @@ class ObjectStitcherDatasetGenerator:
                 mask,
                 draw_square_inside_image(cropped_image, shape, (cropped_image.size[0]//2, cropped_image.size[1]//2), border_width=4, center_radius=5),
                 boat,
-                pasted,
+                stitched_image,
+                draw_square_inside_image(pasted, (350, 270), point_of_crop, border_width=7, center_radius=10),
             ],
             ["Imagen original", "Posición de recorte", "Recorte", "Máscara de snittching", "Bounding box", "Imágen foreground" ,"Imágen con stitched",    "Imágen original con región copiada"],
             main_title="Pipeline",
@@ -84,7 +81,7 @@ for iteration in range(0, 1):
         image_compositor=ImageCompositor(),
         image_shape_adjuster=TransparentImageAdjuster(),
         box_mask_generator=BoxMaskGenerator(),
-        object_stitcher=MockObjectStitcher()
+        object_stitcher=LibcomObjectStitcher()
     )
     dataset_generator.generate(
         image=image,
