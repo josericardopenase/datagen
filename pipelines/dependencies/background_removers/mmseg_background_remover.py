@@ -56,14 +56,3 @@ class MMSegBackgroundRemover(BackgroundRemover):
                     stack.append((nx, ny))
 
         return pixel_group
-
-
-remover = MMSegBackgroundRemover(
-    api=MMSegAPI(url="http://100.103.218.9:4553/v1"),
-    category="ship"
-)
-
-
-plt.imshow(remover.remove(Image.open("../../../assets/boats/boat_with_bg.jpg")))
-plt.show()
-
