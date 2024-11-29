@@ -1,9 +1,9 @@
 from typing import Tuple
 from PIL import Image
+from dataclasses import dataclass
 
 from pipelines.dependencies.background_removers.background_remover import BackgroundRemover
 from pipelines.dependencies.background_removers.mmseg_background_remover import MMSegBackgroundRemover
-from pipelines.dependencies.background_removers.mock_background_remover import MockBackgroundRemover
 from pipelines.dependencies.image_cropper import ImageCropper
 from pipelines.dependencies.image_generators.MockImageGenerator import MockImageGenerator
 from pipelines.dependencies.image_generators.image_generator import ImageGenerator
@@ -14,8 +14,16 @@ from pipelines.dependencies.image_inpainters.stable_diffusion_image_inpainter im
 from pipelines.dependencies.image_paster import ImagePaster
 from pipelines.dependencies.mmseg_api import MMSegAPI
 from pipelines.dependencies.point_extractors.mmseg_point_extractor import MMSegPointExtractor
-from pipelines.dependencies.point_extractors.mock_point_extractor import MockPointExtractor
 from pipelines.dependencies.point_extractors.point_extractor import PointExtractor
+from pipelines.dependencies.quality_evaluators.aesthetic_evaluators.nima_aesthetic_quality_evaluator import \
+    NIMAAestheticQualityEvaluator
+from pipelines.dependencies.quality_evaluators.dataset_similarity_evaluators.fid_dataset_similarity_evaluator import \
+    FIDDatasetSimilarityEvaluator
+from pipelines.dependencies.quality_evaluators.quality_evaluator import QualityEvaluator
+from pipelines.dependencies.quality_evaluators.text_image_similarity_evaluators.clip_text_image_similarity_evaluator import \
+    CLIPTextImageSimilarityEvaluator
+from pipelines.dependencies.quality_evaluators.image_similarity_evaluators.lpips_image_similarity_evaluator import \
+    LPIPSImageSimilarityEvaluator
 from pipelines.harmonization.dependencies.image_compositor import ImageCompositor
 from pipelines.harmonization.dependencies.transparent_image_adjuster import TransparentImageAdjuster
 from pipelines.harmonization.dependencies.transparent_image_cleaner import TransparentImageCleaner
@@ -23,43 +31,29 @@ from pipelines.harmonization.dependencies.transparent_mask_generator import Tran
 from pipelines.utils import plot_images, draw_square_inside_image
 import sys
 
+@dataclass
 class HarmonizationDatasetGenerator:
-    def __init__(self,
-                 point_extractor : PointExtractor,
-                 background_image_generator: ImageGenerator,
-                 boat_image_generator : ImageGenerator,
-                 background_remover : BackgroundRemover,
-                 image_cropper : ImageCropper,
-                 image_paster : ImagePaster,
-                 image_compositor : ImageCompositor,
-                 image_shape_adjuster : TransparentImageAdjuster,
-                 harmonization_mask_generator : TransparentMaskGenerator,
-                 inpainting_mask_generator : TransparentMaskGenerator,
-                 transparent_image_cleaner : TransparentImageCleaner,
-                 inpainter : ImageInpainter,
-                 harmonizer: ImageHarmonizer
-                 ):
-        self.background_image_generator = background_image_generator
-        self.boat_image_generator = boat_image_generator
-        self.image_cropper = image_cropper
-        self.image_paster = image_paster
-        self.image_compositor = image_compositor
-        self.image_shape_adjuster = image_shape_adjuster
-        self.harmonization_mask_generator = harmonization_mask_generator
-        self.inpainting_mask_generator = inpainting_mask_generator
-        self.transparent_image_cleaner = transparent_image_cleaner
-        self.inpainter = inpainter
-        self.harmonizer = harmonizer
-        self.point_extractor = point_extractor
-        self.background_remover = background_remover
-
+    point_extractor: PointExtractor
+    background_image_generator: ImageGenerator
+    boat_image_generator: ImageGenerator
+    background_remover: BackgroundRemover
+    image_cropper: ImageCropper
+    image_paster: ImagePaster
+    image_compositor: ImageCompositor
+    image_shape_adjuster: TransparentImageAdjuster
+    harmonization_mask_generator: TransparentMaskGenerator
+    inpainting_mask_generator: TransparentMaskGenerator
+    transparent_image_cleaner: TransparentImageCleaner
+    inpainter: ImageInpainter
+    harmonizer: ImageHarmonizer
+    quality_evaluator: QualityEvaluator
 
     def generate(self, resolution: Tuple[int, int], save_as="result1"):
         background = self.background_image_generator.generate()
         boat = self.boat_image_generator.generate()
 
         boat_position = self.point_extractor.extract(background)
-        boat_without_background = self.background_remover.remove(boat)
+        boat_without_background = boat
 
         background_cropped_image = self.image_cropper.crop(
             image=background,
@@ -78,7 +72,8 @@ class HarmonizationDatasetGenerator:
         harmonization_mask = self.generate_harmonization_mask(cleaned_boat, background_cropped_image)
         harmonized_image = self.harmonizer.harmonize(composited_image, harmonization_mask)
         inpainting_mask, fg_shape = self.generate_inpainting_mask(cleaned_boat, background_cropped_image, fg_shape)
-        inpainted_image = self.inpainter.inpaint(harmonized_image, inpainting_mask, prompt="A boat")
+        prompt = "A boat"
+        inpainted_image = self.inpainter.inpaint(harmonized_image, inpainting_mask, prompt=prompt)
         pasted = self.image_paster.paste(
             original_image=background,
             pasted_image=inpainted_image,
@@ -102,6 +97,9 @@ class HarmonizationDatasetGenerator:
             main_title="Pipeline using Image Harmonization",
             save_as=save_as
         )
+        self.quality_evaluator.evaluate_text_image_similarity(prompt, inpainted_image)
+        self.quality_evaluator.evaluate_image_similarity(background, pasted)
+        self.quality_evaluator.show_scores()
         return pasted
 
     def generate_inpainting_mask(self, cleaned_boat, cropped_image, fg_shape):
@@ -129,7 +127,7 @@ for iteration in range(0, 1):
     dataset_generator = HarmonizationDatasetGenerator(
         point_extractor=MMSegPointExtractor(MMSegAPI(url="http://100.103.218.9:4553/v1")),
         background_image_generator=MockImageGenerator("assets/bgs/1820-1024.jpg"),
-        boat_image_generator=MockImageGenerator("assets/boats/boat_with_bg.jpg"),
+        boat_image_generator=MockImageGenerator("assets/boats/cargo_ship.png"),
         background_remover=MMSegBackgroundRemover("ship",
                                                   MMSegAPI(url="http://100.103.218.9:4553/v1")
                                                   ),
@@ -139,9 +137,15 @@ for iteration in range(0, 1):
         transparent_image_cleaner=TransparentImageCleaner(threshold=0.4),
         harmonization_mask_generator=TransparentMaskGenerator(fill=True),
         harmonizer=LibcomImageHarmonizer(),
-        inpainting_mask_generator=TransparentMaskGenerator(fill=False, border_size=21, inside_border=True),
+        inpainting_mask_generator=TransparentMaskGenerator(fill=False, border_size=121, inside_border=True),
         inpainter=StableDiffusionImageInpainter(),
-        image_paster=ImagePaster()
+        image_paster=ImagePaster(),
+        quality_evaluator=QualityEvaluator(
+            image_similarity=LPIPSImageSimilarityEvaluator(),
+            text_image_similarity= CLIPTextImageSimilarityEvaluator(),
+            aesthetic_eval=None,
+            dataset_similarity=FIDDatasetSimilarityEvaluator()
+        )
     )
 
     dataset_generator.generate(
