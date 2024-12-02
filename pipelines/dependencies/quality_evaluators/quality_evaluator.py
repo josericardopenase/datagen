@@ -1,3 +1,12 @@
+<<<<<<< HEAD
+from abc import abstractmethod
+
+
+class QualityEvaluator:
+    @abstractmethod
+    def evaluate(self, truth, processed):
+        ...
+=======
 from typing import Optional
 
 from PIL import Image
@@ -52,3 +61,4 @@ class QualityEvaluator:
 
 
 
+>>>>>>> c287ba9e3614025d2d34a94444aed1fe99270c9e
