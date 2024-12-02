@@ -7,6 +7,7 @@ from pipelines.dependencies.background_removers.mmseg_background_remover import 
 from pipelines.dependencies.image_cropper import ImageCropper
 from pipelines.dependencies.image_generators.MockImageGenerator import MockImageGenerator
 from pipelines.dependencies.image_generators.image_generator import ImageGenerator
+from pipelines.dependencies.image_generators.sthocastic_image_generator import StochasticImageGenerator
 from pipelines.dependencies.image_harmonizers.image_harmonizer import ImageHarmonizer
 from pipelines.dependencies.image_harmonizers.libcom_image_harmonizer import LibcomImageHarmonizer
 from pipelines.dependencies.image_inpainters.image_inpainter import ImageInpainter
@@ -126,8 +127,8 @@ folder = sys.argv[0] if sys.argv[0] else 0
 for iteration in range(0, 1):
     dataset_generator = HarmonizationDatasetGenerator(
         point_extractor=MMSegPointExtractor(MMSegAPI(url="http://100.103.218.9:4553/v1")),
-        background_image_generator=MockImageGenerator("assets/bgs/1820-1024.jpg"),
-        boat_image_generator=MockImageGenerator("assets/boats/cargo_ship.png"),
+        background_image_generator=StochasticImageGenerator("assets/bgs/"),
+        boat_image_generator=StochasticImageGenerator("assets/boats/with_bg"),
         background_remover=MMSegBackgroundRemover("ship",
                                                   MMSegAPI(url="http://100.103.218.9:4553/v1")
                                                   ),
