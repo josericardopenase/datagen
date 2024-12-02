@@ -11,7 +11,7 @@ class StochasticImageGenerator(ImageGenerator):
 
 
     def is_image(self, path : str) -> bool:
-        return path.endswith('.jpg') or path.endswith('.png')
+        return path.endswith('.jpg') or path.endswith('.png') or path.endswith('.jpeg')
 
     def generate(self) -> Image.Image:
         images = list(
