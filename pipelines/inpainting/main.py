@@ -72,7 +72,7 @@ for iteration in range(0, 10):
         inpainter=StableDiffusionImageInpainter(),
         mask_creator=MaskCreator(
             shape=Image.open("assets/masks/square_mask.png"),
-            size_of_shape = 0.15
+            resolution_of_shape=(0.15, 0.15)
         ),
         image_cropper=ImageCropper(),
         image_paster=ImagePaster(),

@@ -1,12 +1,9 @@
-import random
-import os
 from abc import abstractmethod
 from PIL import Image
 
-
-class ImageGenerator:
+class AestheticQualityEvaluator:
     @abstractmethod
-    def generate(self) -> Image.Image:
+    def evaluate(self, image: Image.Image) -> float:
         ...
 
 
