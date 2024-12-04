@@ -119,10 +119,10 @@ class HarmonizationDatasetGenerator:
         return pasted
 
     def generate_inpainting_mask(self, cleaned_boat, cropped_image, fg_shape):
-        return self.inpainting_inside_mask_generator.generate(cleaned_boat, cropped_image)
+        return self.inpainting_inside_mask_generator.generate(cleaned_boat, cropped_image.size)
 
     def generate_outside_inpainting_mask(self, cleaned_boat, cropped_image, fg_shape):
-        return self.inpainting_outside_mask_generator.generate(cleaned_boat, cropped_image)
+        return self.inpainting_outside_mask_generator.generate(cleaned_boat, cropped_image.size)
 
     def generate_harmonization_mask(self, cleaned_boat, cropped_image):
         return self.harmonization_mask_generator.generate(cleaned_boat, cropped_image)
