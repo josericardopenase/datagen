@@ -79,7 +79,7 @@ class HarmonizationDatasetGenerator:
 
         self.logger.info("Harmonizing boat")
 
-        harmonization_mask = self.generate_harmonization_mask(cleaned_boat, background_cropped_image)
+        harmonization_mask, shape = self.generate_harmonization_mask(cleaned_boat, background_cropped_image)
         harmonized_image = self.harmonizer.harmonize(composited_image, harmonization_mask)
         self.logger.info("Inpainting boat borders")
         inside_inpainting_mask, fg_shape = self.generate_inpainting_mask(cleaned_boat, background_cropped_image, fg_shape)
@@ -144,8 +144,8 @@ for x in range(0, 1):
         transparent_image_cleaner=TransparentImageCleaner(threshold=0.4),
         harmonization_mask_generator=TransparentMaskGenerator(fill=True),
         harmonizer=LibcomImageHarmonizer(),
-        inpainting_inside_mask_generator=TransparentMaskGenerator(fill=False, border_size=21, inside_border=True),
-        inpainting_outside_mask_generator=TransparentMaskGenerator(fill=False, border_size=97,inside_border=False),
+        inpainting_inside_mask_generator=TransparentMaskGenerator(fill=False, size_of=0.35, border_size=21, inside_border=True),
+        inpainting_outside_mask_generator=TransparentMaskGenerator(fill=False, size_of=0.35, border_size=97,inside_border=False),
         inpainter=StableDiffusionImageInpainter(),
         image_paster=ImagePaster(),
         quality_evaluator=QualityEvaluator(
