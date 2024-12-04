@@ -1,8 +1,7 @@
-from matplotlib import pyplot as plt
 from PIL import Image
 import numpy as np
 from pipelines.dependencies.background_removers.background_remover import BackgroundRemover
-from pipelines.dependencies.mmseg_api import MMSegAPI
+from pipelines.dependencies.api.mmseg_api import MMSegAPI
 
 class MMSegBackgroundRemover(BackgroundRemover):
     def __init__(self, category: str, api: MMSegAPI):

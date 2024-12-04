@@ -6,7 +6,6 @@ import random
 from pipelines.dependencies.background_removers.background_remover import BackgroundRemover
 from pipelines.dependencies.background_removers.mmseg_background_remover import MMSegBackgroundRemover
 from pipelines.dependencies.image_cropper import ImageCropper
-from pipelines.dependencies.image_generators.MockImageGenerator import MockImageGenerator
 from pipelines.dependencies.image_generators.image_generator import ImageGenerator
 from pipelines.dependencies.image_generators.sthocastic_image_generator import StochasticImageGenerator
 from pipelines.dependencies.image_harmonizers.image_harmonizer import ImageHarmonizer
@@ -14,13 +13,15 @@ from pipelines.dependencies.image_harmonizers.libcom_image_harmonizer import Lib
 from pipelines.dependencies.image_inpainters.image_inpainter import ImageInpainter
 from pipelines.dependencies.image_inpainters.stable_diffusion_image_inpainter import StableDiffusionImageInpainter
 from pipelines.dependencies.image_paster import ImagePaster
+<<<<<<< HEAD
 from pipelines.dependencies.loggers.logger import Logger
 from pipelines.dependencies.loggers.terminal_logger import TerminalLogger
 from pipelines.dependencies.mmseg_api import MMSegAPI
+=======
+from pipelines.dependencies.api.mmseg_api import MMSegAPI
+>>>>>>> 8e449e99170638939c91e72a534dbe2302bb2588
 from pipelines.dependencies.point_extractors.mmseg_point_extractor import MMSegPointExtractor
 from pipelines.dependencies.point_extractors.point_extractor import PointExtractor
-from pipelines.dependencies.quality_evaluators.aesthetic_evaluators.nima_aesthetic_quality_evaluator import \
-    NIMAAestheticQualityEvaluator
 from pipelines.dependencies.quality_evaluators.dataset_similarity_evaluators.fid_dataset_similarity_evaluator import \
     FIDDatasetSimilarityEvaluator
 from pipelines.dependencies.quality_evaluators.quality_evaluator import QualityEvaluator
@@ -46,7 +47,8 @@ class HarmonizationDatasetGenerator:
     image_compositor: ImageCompositor
     image_shape_adjuster: TransparentImageAdjuster
     harmonization_mask_generator: TransparentMaskGenerator
-    inpainting_mask_generator: TransparentMaskGenerator
+    inpainting_inside_mask_generator: TransparentMaskGenerator,
+    inpainting_outside_mask_generator: TransparentMaskGenerator
     transparent_image_cleaner: TransparentImageCleaner
     inpainter: ImageInpainter
     harmonizer: ImageHarmonizer
@@ -136,32 +138,30 @@ class HarmonizationDatasetGenerator:
 
 folder = sys.argv[0] if sys.argv[0] else 0
 
-dataset_generator = HarmonizationDatasetGenerator(
-    point_extractor=MMSegPointExtractor(MMSegAPI(url="http://100.103.218.9:4553/v1")),
-    background_image_generator=StochasticImageGenerator("assets/bgs/"),
-    boat_image_generator=StochasticImageGenerator("assets/boats/with_bg"),
-    background_remover=MMSegBackgroundRemover("ship",
-                                              MMSegAPI(url="http://100.103.218.9:4553/v1"),
-                                              ),
-    image_cropper=ImageCropper(),
-    image_compositor=ImageCompositor(),
-    image_shape_adjuster=TransparentImageAdjuster(),
-    transparent_image_cleaner=TransparentImageCleaner(threshold=0.4),
-    harmonization_mask_generator=TransparentMaskGenerator(fill=True),
-    harmonizer=LibcomImageHarmonizer(),
-    inpainting_mask_generator=TransparentMaskGenerator(fill=False, border_size=17, inside_border=True),
-    inpainter=StableDiffusionImageInpainter(),
-    image_paster=ImagePaster(),
-    quality_evaluator=QualityEvaluator(
-        image_similarity=LPIPSImageSimilarityEvaluator(),
-        text_image_similarity= CLIPTextImageSimilarityEvaluator(),
-        aesthetic_eval=None,
-        dataset_similarity=FIDDatasetSimilarityEvaluator()
-    ),
-    logger=TerminalLogger()
-)
-result = dataset_generator.generate(
-    resolution=(512, 512),
-    save_as=f's_dataset/process/result_{x}.png'
+for iteration in range(0, 1):
+    dataset_generator = HarmonizationDatasetGenerator(
+        point_extractor=MMSegPointExtractor(MMSegAPI(url="http://100.103.218.9:4553/v1")),
+        background_image_generator=StochasticImageGenerator("assets/"),
+        boat_image_generator=StochasticImageGenerator("assets/boats/"),
+        background_remover=MMSegBackgroundRemover("ship",
+                                                  MMSegAPI(url="http://100.103.218.9:4553/v1")
+                                                  ),
+        image_cropper=ImageCropper(),
+        image_compositor=ImageCompositor(),
+        image_shape_adjuster=TransparentImageAdjuster(),
+        transparent_image_cleaner=TransparentImageCleaner(threshold=0.4),
+        harmonization_mask_generator=TransparentMaskGenerator(fill=True),
+        harmonizer=LibcomImageHarmonizer(),
+        inpainting_inside_mask_generator=TransparentMaskGenerator(fill=False, border_size=21, inside_border=True),
+        inpainting_outside_mask_generator=TransparentMaskGenerator(fill=False, border_size=97),
+        inpainter=StableDiffusionImageInpainter(),
+        image_paster=ImagePaster(),
+        quality_evaluator=QualityEvaluator(
+            image_similarity=LPIPSImageSimilarityEvaluator(),
+            text_image_similarity= CLIPTextImageSimilarityEvaluator(),
+            aesthetic_eval=None,
+            dataset_similarity=FIDDatasetSimilarityEvaluator()
+        )
     )
+    
 result.save(f's_dataset/result_{x}.png')
