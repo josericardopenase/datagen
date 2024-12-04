@@ -14,7 +14,7 @@ class TransparentMaskGenerator:
         self.centered_border = centered_border
         self.size_of = size_of
 
-    def generate(self, fg: Image.Image, resolution: Tuple[int, int]) -> Image.Image:
+    def generate(self, fg: Image.Image, resolution: Tuple[int, int]) -> Tuple[Image.Image, Tuple[int, int]]:
         # Create a full black image with the given resolution
         mask = Image.new("L", resolution, 0)
 
@@ -54,4 +54,4 @@ class TransparentMaskGenerator:
             # Paste the border mask onto the final black image
             final_mask.paste(border_mask, (0, 0))
 
-            return final_mask
+            return final_mask, fg_alpha.size
