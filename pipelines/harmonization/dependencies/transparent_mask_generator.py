@@ -14,7 +14,7 @@ class TransparentMaskGenerator:
         self.centered_border = centered_border
         self.size_of = size_of
 
-    def generate(self, fg: Image.Image, resolution: Tuple[int, int]) -> Tuple[Image.Image, Tuple[int, int, int, int]]:
+    def generate(self, fg: Image.Image, resolution: Tuple[int, int]) -> Image.Image:
         # Create a full black image with the given resolution
         mask = Image.new("L", resolution, 0)
 
@@ -26,15 +26,12 @@ class TransparentMaskGenerator:
         x_offset = (resolution[0] // 2) - (fg.size[0] // 2)
         y_offset = (resolution[1] // 2) - (fg.size[1] // 2)
 
-        # Calculate bounding box
-        bounding_box = (x_offset, y_offset, x_offset + fg.size[0], y_offset + fg.size[1])
-
         # Paste the alpha channel of the foreground onto the mask
         mask.paste(fg_alpha, (x_offset, y_offset))
 
         if self.fill:
-            # If `fill` is True, return the fully filled mask and bounding box
-            return mask, bounding_box
+            # If `fill` is True, return the fully filled mask
+            return mask
         else:
             # Create the border mask based on the options
             if self.inside_border:
@@ -57,4 +54,4 @@ class TransparentMaskGenerator:
             # Paste the border mask onto the final black image
             final_mask.paste(border_mask, (0, 0))
 
-            return final_mask, bounding_box
+            return final_mask
