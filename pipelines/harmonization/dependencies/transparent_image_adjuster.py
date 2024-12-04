@@ -5,8 +5,7 @@ class TransparentImageAdjuster:
     def __init__(self):
         ...
     def adjust(self, image: Image.Image, threshold: float = 0) -> Image.Image:
-        if image.mode != "RGBA":
-            raise ValueError("Image must be in RGBA format")
+        image = image.convert("RGBA")
         width, height = image.size
         pixels = image.load()
         left, right, top, bottom = width, 0, height, 0

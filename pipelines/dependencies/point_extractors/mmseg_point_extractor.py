@@ -21,8 +21,8 @@ class MMSegPointExtractor(PointExtractor):
         color = self.api.get_inference_color("sea")
         pixels = self.get_pixels_with_color(color, segmented_img)
         pixels_with_rules_applied = self.filter_pixels_by_rules(pixels, rules=[
-        self.pixels_cannot_be_near_y_axis_edge_with_color(120, segmented_img, color),
-        self.pixels_cannot_be_near_x_axis_edge_with_color(250, segmented_img, color)
+        self.pixels_cannot_be_near_y_axis_edge_with_color(80, segmented_img, color),
+        self.pixels_cannot_be_near_x_axis_edge_with_color(180, segmented_img, color)
         ])
         if not pixels_with_rules_applied:
             raise ValueError("No se encontraron píxeles válidos después de aplicar las reglas.")
