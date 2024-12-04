@@ -1,12 +1,17 @@
+import hashlib
 from typing import List, Any, Tuple
 from io import BytesIO
 from PIL import Image
 import base64
 import requests
+import os
 
 class MMSegAPI:
-    def __init__(self, url: str):
+    def __init__(self, url: str, cache_dir : str ="./segmentation_cache"):
         self.url = url
+        self.cache_dir = cache_dir
+        if not os.path.exists(self.cache_dir):
+            os.mkdir(self.cache_dir)
 
     @staticmethod
     def to_base64(image: Image.Image) -> str:
@@ -15,10 +20,31 @@ class MMSegAPI:
         return base64.b64encode(buffer.getvalue()).decode('utf-8')
 
     def segment_image(self, image: Image.Image) -> Image.Image:
+        if self.is_in_cache(image):
+            return self.recover_from_cache(image)
         payload = self.create_payload([self.to_base64(image)])
         response = requests.post(self.url + "/inference/images", json=payload)
         b64_img = response.json()["segmented_images"][0]
-        return Image.open(BytesIO(base64.b64decode(b64_img)))
+        final_image = Image.open(BytesIO(base64.b64decode(b64_img)))
+        self.save_in_cache(image, final_image)
+        return final_image
+
+    def is_in_cache(self, image: Image.Image):
+        hash = self.get_hash(image)
+        if hash + ".png" in os.listdir(self.cache_dir):
+            return True
+        return False
+
+    def recover_from_cache(self, image : Image.Image):
+        hash = self.get_hash(image)
+        return Image.open(self.cache_dir + "/" + hash + ".png")
+
+    def get_hash(self, image: Image.Image) -> str:
+        return hashlib.sha1(image.tobytes()).hexdigest()
+
+    def save_in_cache(self, original_image : Image.Image, segmented_image : Image.Image):
+        hash = self.get_hash(original_image)
+        segmented_image.save(self.cache_dir + "/" + hash + ".png")
 
     @staticmethod
     def create_payload(images: List[str]) -> dict:
@@ -41,3 +67,4 @@ class MMSegAPI:
         response = requests.get(self.url + "/inference_colors/")
         response.raise_for_status()
         return tuple(response.json()[category])
+

@@ -5,7 +5,6 @@ from dataclasses import dataclass
 from pipelines.dependencies.background_removers.background_remover import BackgroundRemover
 from pipelines.dependencies.background_removers.mmseg_background_remover import MMSegBackgroundRemover
 from pipelines.dependencies.image_cropper import ImageCropper
-from pipelines.dependencies.image_generators.MockImageGenerator import MockImageGenerator
 from pipelines.dependencies.image_generators.image_generator import ImageGenerator
 from pipelines.dependencies.image_generators.sthocastic_image_generator import StochasticImageGenerator
 from pipelines.dependencies.image_harmonizers.image_harmonizer import ImageHarmonizer
@@ -13,11 +12,9 @@ from pipelines.dependencies.image_harmonizers.libcom_image_harmonizer import Lib
 from pipelines.dependencies.image_inpainters.image_inpainter import ImageInpainter
 from pipelines.dependencies.image_inpainters.stable_diffusion_image_inpainter import StableDiffusionImageInpainter
 from pipelines.dependencies.image_paster import ImagePaster
-from pipelines.dependencies.mmseg_api import MMSegAPI
+from pipelines.dependencies.api.mmseg_api import MMSegAPI
 from pipelines.dependencies.point_extractors.mmseg_point_extractor import MMSegPointExtractor
 from pipelines.dependencies.point_extractors.point_extractor import PointExtractor
-from pipelines.dependencies.quality_evaluators.aesthetic_evaluators.nima_aesthetic_quality_evaluator import \
-    NIMAAestheticQualityEvaluator
 from pipelines.dependencies.quality_evaluators.dataset_similarity_evaluators.fid_dataset_similarity_evaluator import \
     FIDDatasetSimilarityEvaluator
 from pipelines.dependencies.quality_evaluators.quality_evaluator import QualityEvaluator
@@ -43,7 +40,8 @@ class HarmonizationDatasetGenerator:
     image_compositor: ImageCompositor
     image_shape_adjuster: TransparentImageAdjuster
     harmonization_mask_generator: TransparentMaskGenerator
-    inpainting_mask_generator: TransparentMaskGenerator
+    inpainting_inside_mask_generator: TransparentMaskGenerator,
+    inpainting_outside_mask_generator: TransparentMaskGenerator
     transparent_image_cleaner: TransparentImageCleaner
     inpainter: ImageInpainter
     harmonizer: ImageHarmonizer
@@ -138,7 +136,8 @@ for iteration in range(0, 1):
         transparent_image_cleaner=TransparentImageCleaner(threshold=0.4),
         harmonization_mask_generator=TransparentMaskGenerator(fill=True),
         harmonizer=LibcomImageHarmonizer(),
-        inpainting_mask_generator=TransparentMaskGenerator(fill=False, border_size=121, inside_border=True),
+        inpainting_inside_mask_generator=TransparentMaskGenerator(fill=False, border_size=21, inside_border=True),
+        inpainting_outside_mask_generator=TransparentMaskGenerator(fill=False, border_size=97),
         inpainter=StableDiffusionImageInpainter(),
         image_paster=ImagePaster(),
         quality_evaluator=QualityEvaluator(

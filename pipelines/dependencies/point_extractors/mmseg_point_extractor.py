@@ -1,7 +1,5 @@
-from pipelines.dependencies.mmseg_api import MMSegAPI
-from PIL import Image
+from pipelines.dependencies.api.mmseg_api import MMSegAPI
 import matplotlib.pyplot as plt
-from pipelines.utils import draw_square_inside_image
 from pipelines.dependencies.point_extractors.point_extractor import PointExtractor
 import random
 import numpy as np
