@@ -125,7 +125,7 @@ class HarmonizationDatasetGenerator:
         return self.inpainting_outside_mask_generator.generate(cleaned_boat, cropped_image.size)
 
     def generate_harmonization_mask(self, cleaned_boat, cropped_image):
-        return self.harmonization_mask_generator.generate(cleaned_boat, cropped_image)
+        return self.harmonization_mask_generator.generate(cleaned_boat, cropped_image.size)
 
 
 folder = sys.argv[0] if sys.argv[0] else 0
