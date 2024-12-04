@@ -25,14 +25,24 @@ class ImageCompositor:
             new_height = max_height
             new_width = int(new_height * aspect_ratio)
 
-        resized_foreground = foreground.resize((new_width, new_height))
+        resized_foreground = foreground.resize((new_width, new_height), resample=Image.ANTIALIAS)
 
         center_x, center_y = center
-        top_left_x = center_x - new_width // 2
-        top_left_y = center_y - new_height // 2
+        top_left_x = max(0, center_x - new_width // 2)
+        top_left_y = max(0, center_y - new_height // 2)
+        bottom_right_x = min(bg_width, top_left_x + new_width)
+        bottom_right_y = min(bg_height, top_left_y + new_height)
+
+        # Crop the foreground to fit within the boundaries
+        crop_left = max(0, -1 * (center_x - new_width // 2))
+        crop_top = max(0, -1 * (center_y - new_height // 2))
+        crop_right = crop_left + (bottom_right_x - top_left_x)
+        crop_bottom = crop_top + (bottom_right_y - top_left_y)
+
+        cropped_foreground = resized_foreground.crop((crop_left, crop_top, crop_right, crop_bottom))
 
         # Create a copy of the background to paste onto
         composite_image = background.copy()
-        composite_image.paste(resized_foreground, (top_left_x, top_left_y), resized_foreground if resized_foreground.mode == 'RGBA' else None)
+        composite_image.paste(cropped_foreground, (top_left_x, top_left_y), cropped_foreground if cropped_foreground.mode == 'RGBA' else None)
 
-        return composite_image, (new_width, new_height)
+        return composite_image, (cropped_foreground.size)
