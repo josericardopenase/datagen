@@ -119,31 +119,13 @@ class HarmonizationDatasetGenerator:
         return pasted
 
     def generate_inpainting_mask(self, cleaned_boat, cropped_image, fg_shape):
-        composited_inpainting_mask, fg_shape = self.image_compositor.composite(
-            background=Image.new("RGB", cropped_image.size, color=(0, 0, 0)),
-            foreground= self.inpainting_inside_mask_generator.generate(cleaned_boat),
-            center=(cropped_image.size[0] // 2, cropped_image.size[1] // 2),
-            size_of=0.55
-        )
-        return composited_inpainting_mask, fg_shape
+        return self.inpainting_inside_mask_generator.generate(cleaned_boat, cropped_image)
 
     def generate_outside_inpainting_mask(self, cleaned_boat, cropped_image, fg_shape):
-        composited_inpainting_mask, fg_shape = self.image_compositor.composite(
-            background=Image.new("RGB", cropped_image.size, color=(0, 0, 0)),
-            foreground=self.inpainting_outside_mask_generator.generate(cleaned_boat),
-            center=(cropped_image.size[0] // 2, cropped_image.size[1] // 2),
-            size_of=0.55
-        )
-        return composited_inpainting_mask, fg_shape
+        return self.inpainting_outside_mask_generator.generate(cleaned_boat, cropped_image)
 
     def generate_harmonization_mask(self, cleaned_boat, cropped_image):
-        composited_harmonization_mask, fg_shape = self.image_compositor.composite(
-            background=Image.new("RGB", cropped_image.size, color=(0, 0, 0)),
-            foreground=self.harmonization_mask_generator.generate(cleaned_boat),
-            center=(cropped_image.size[0] // 2, cropped_image.size[1] // 2),
-            size_of=0.55
-        )
-        return composited_harmonization_mask
+        return self.harmonization_mask_generator.generate(cleaned_boat, cropped_image)
 
 
 folder = sys.argv[0] if sys.argv[0] else 0
