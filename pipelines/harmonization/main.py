@@ -43,7 +43,7 @@ class HarmonizationDatasetGenerator:
     image_compositor: ImageCompositor
     image_shape_adjuster: TransparentImageAdjuster
     harmonization_mask_generator: TransparentMaskGenerator
-    inpainting_inside_mask_generator: TransparentMaskGenerator,
+    inpainting_inside_mask_generator: TransparentMaskGenerator
     inpainting_outside_mask_generator: TransparentMaskGenerator
     transparent_image_cleaner: TransparentImageCleaner
     inpainter: ImageInpainter
