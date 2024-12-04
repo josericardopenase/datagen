@@ -157,7 +157,8 @@ for x in range(0, 1):
             text_image_similarity= CLIPTextImageSimilarityEvaluator(),
             aesthetic_eval=None,
             dataset_similarity=FIDDatasetSimilarityEvaluator()
-        )
+        ),
+        logger=TerminalLogger()
     )
     result = dataset_generator.generate((512, 512), f's_dataset/result_{x}_process.png')
     result.save(f's_dataset/result_{x}.png')
