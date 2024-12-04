@@ -13,13 +13,9 @@ from pipelines.dependencies.image_harmonizers.libcom_image_harmonizer import Lib
 from pipelines.dependencies.image_inpainters.image_inpainter import ImageInpainter
 from pipelines.dependencies.image_inpainters.stable_diffusion_image_inpainter import StableDiffusionImageInpainter
 from pipelines.dependencies.image_paster import ImagePaster
-<<<<<<< HEAD
 from pipelines.dependencies.loggers.logger import Logger
 from pipelines.dependencies.loggers.terminal_logger import TerminalLogger
-from pipelines.dependencies.mmseg_api import MMSegAPI
-=======
 from pipelines.dependencies.api.mmseg_api import MMSegAPI
->>>>>>> 8e449e99170638939c91e72a534dbe2302bb2588
 from pipelines.dependencies.point_extractors.mmseg_point_extractor import MMSegPointExtractor
 from pipelines.dependencies.point_extractors.point_extractor import PointExtractor
 from pipelines.dependencies.quality_evaluators.dataset_similarity_evaluators.fid_dataset_similarity_evaluator import \
@@ -138,7 +134,7 @@ class HarmonizationDatasetGenerator:
 
 folder = sys.argv[0] if sys.argv[0] else 0
 
-for iteration in range(0, 1):
+for x in range(0, 1):
     dataset_generator = HarmonizationDatasetGenerator(
         point_extractor=MMSegPointExtractor(MMSegAPI(url="http://100.103.218.9:4553/v1")),
         background_image_generator=StochasticImageGenerator("assets/"),
@@ -163,5 +159,5 @@ for iteration in range(0, 1):
             dataset_similarity=FIDDatasetSimilarityEvaluator()
         )
     )
-    
-result.save(f's_dataset/result_{x}.png')
+    result = dataset_generator.generate((512, 512), f's_dataset/result_{x}_process.png')
+    result.save(f's_dataset/result_{x}.png')
