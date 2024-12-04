@@ -79,14 +79,13 @@ class HarmonizationDatasetGenerator:
 
         self.logger.info("Harmonizing boat")
 
-        harmonization_mask, shape = self.generate_harmonization_mask(cleaned_boat, background_cropped_image)
+        harmonization_mask = self.generate_harmonization_mask(cleaned_boat, background_cropped_image)
         harmonized_image = self.harmonizer.harmonize(composited_image, harmonization_mask)
         self.logger.info("Inpainting boat borders")
-        inside_inpainting_mask, fg_shape = self.generate_inpainting_mask(cleaned_boat, background_cropped_image, fg_shape)
-        outside_inpainting_mask, fg_shape = self.generate_outside_inpainting_mask(cleaned_boat, background_cropped_image, fg_shape)
+        inpainting_mask, fg_shape = self.generate_inpainting_mask(cleaned_boat, background_cropped_image, fg_shape)
         prompt = "A boat"
-        inpainted_image = self.inpainter.inpaint(harmonized_image, inside_inpainting_mask, prompt=prompt)
-        inpainted_image = self.inpainter.inpaint(inpainted_image, outside_inpainting_mask, prompt=prompt)
+        inpainted_image = self.inpainter.inpaint(harmonized_image, inpainting_mask, prompt=prompt)
+        inpainted_image = self.inpainter.inpaint(inpainted_image, inpainting_mask, prompt=prompt)
         pasted = self.image_paster.paste(
             original_image=background,
             pasted_image=inpainted_image,
@@ -102,14 +101,12 @@ class HarmonizationDatasetGenerator:
                 composited_image,
                 harmonization_mask,
                 harmonized_image,
-                inside_inpainting_mask,
-                inpainted_image,
-                outside_inpainting_mask,
+                inpainting_mask,
                 inpainted_image,
                 pasted,
                 draw_square_inside_image(pasted, fg_shape, boat_position, border_width=7, center_radius=10)
             ],
-            ["Imagen original", "Barco original", "Posición de recorte", "Recorte", "Barco incluído", "Máscara de harmonización","Imagen harmonizada",  "Máscara de inpainting", "Imagen con inpainting realizado","Máscara de inpainting", "Imagen con inpainting realizado", "Imagen original con región copiada", "Bounding box añadida"],
+            ["Imagen original", "Barco original", "Posición de recorte", "Recorte", "Barco incluído", "Máscara de harmonización","Imagen harmonizada",  "Máscara de inpainting", "Imagen con inpainting realizado", "Imagen original con región copiada", "Bounding box añadida"],
             main_title="Pipeline using Image Harmonization",
             save_as=save_as
         )
@@ -119,13 +116,31 @@ class HarmonizationDatasetGenerator:
         return pasted
 
     def generate_inpainting_mask(self, cleaned_boat, cropped_image, fg_shape):
-        return self.inpainting_inside_mask_generator.generate(cleaned_boat, cropped_image.size)
+        composited_inpainting_mask, fg_shape = self.image_compositor.composite(
+            background=Image.new("RGB", cropped_image.size, color=(0, 0, 0)),
+            foreground= self.inpainting_inside_mask_generator.generate(cleaned_boat),
+            center=(cropped_image.size[0] // 2, cropped_image.size[1] // 2),
+            size_of=0.55
+        )
+        return composited_inpainting_mask, fg_shape
 
     def generate_outside_inpainting_mask(self, cleaned_boat, cropped_image, fg_shape):
-        return self.inpainting_outside_mask_generator.generate(cleaned_boat, cropped_image.size)
+        composited_inpainting_mask, fg_shape = self.image_compositor.composite(
+            background=Image.new("RGB", cropped_image.size, color=(0, 0, 0)),
+            foreground= self.inpainting_inside_mask_generator.generate(cleaned_boat),
+            center=(cropped_image.size[0] // 2, cropped_image.size[1] // 2),
+            size_of=0.55
+        )
+        return composited_inpainting_mask, fg_shape
 
     def generate_harmonization_mask(self, cleaned_boat, cropped_image):
-        return self.harmonization_mask_generator.generate(cleaned_boat, cropped_image.size)
+        composited_harmonization_mask, fg_shape = self.image_compositor.composite(
+            background=Image.new("RGB", cropped_image.size, color=(0, 0, 0)),
+            foreground=self.harmonization_mask_generator.generate(cleaned_boat),
+            center=(cropped_image.size[0] // 2, cropped_image.size[1] // 2),
+            size_of=0.55
+        )
+        return composited_harmonization_mask
 
 
 folder = sys.argv[0] if sys.argv[0] else 0
@@ -144,8 +159,8 @@ for x in range(0, 1):
         transparent_image_cleaner=TransparentImageCleaner(threshold=0.4),
         harmonization_mask_generator=TransparentMaskGenerator(fill=True),
         harmonizer=LibcomImageHarmonizer(),
-        inpainting_inside_mask_generator=TransparentMaskGenerator(fill=False, size_of=0.35, border_size=21, inside_border=True),
-        inpainting_outside_mask_generator=TransparentMaskGenerator(fill=False, size_of=0.35, border_size=97,inside_border=False),
+        inpainting_inside_mask_generator=TransparentMaskGenerator(fill=False, border_size=21, inside_border=True),
+        inpainting_outside_mask_generator=TransparentMaskGenerator(fill=False, border_size=97),
         inpainter=StableDiffusionImageInpainter(),
         image_paster=ImagePaster(),
         quality_evaluator=QualityEvaluator(

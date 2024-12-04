@@ -1,57 +1,46 @@
 from typing import Tuple
-from PIL import Image, ImageFilter, ImageChops
+from PIL import Image, ImageDraw, ImageFilter, ImageChops
 
 class TransparentMaskGenerator:
-    def __init__(self,
-                 fill: bool = True,
-                 size_of: float = 0.55,
-                 border_size: int = 4,
-                 inside_border: bool = True,
-                 centered_border: bool = False):
+    def __init__(self, fill: bool = True, border_size: int = 4, inside_border: bool = True, centered_border: bool = False):
         self.fill = fill
         self.border_size = border_size
         self.inside_border = inside_border
         self.centered_border = centered_border
-        self.size_of = size_of
 
-    def generate(self, fg: Image.Image, resolution: Tuple[int, int]) -> Tuple[Image.Image, Tuple[int, int]]:
-        # Create a full black image with the given resolution
-        mask = Image.new("L", resolution, 0)
+    def generate(self, image: Image.Image) -> Image.Image:
+        if image.mode != "RGBA":
+            raise ValueError("Image must be in RGBA format")
 
-        # Resize the foreground image according to `size_of`
-        fg = fg.resize((int(fg.size[0] * self.size_of), int(fg.size[1] * self.size_of)), resample=Image.BILINEAR)
-        fg_alpha = fg.split()[3]  # Use the alpha channel for transparency
+        # Create a new mask image with the same size, initialized to black (0)
+        mask = Image.new("L", image.size, 0)
 
-        # Center the resized foreground on the black mask
-        x_offset = (resolution[0] // 2) - (fg.size[0] // 2)
-        y_offset = (resolution[1] // 2) - (fg.size[1] // 2)
+        # Get the alpha channel from the input image
+        alpha = image.split()[3]
 
-        # Paste the alpha channel of the foreground onto the mask
-        mask.paste(fg_alpha, (x_offset, y_offset))
+        # Generate a binary mask based on the alpha channel (non-transparent areas)
+        binary_mask = alpha.point(lambda p: 255 if p > 0 else 0)
 
         if self.fill:
-            # If `fill` is True, return the fully filled mask
-            return mask
+            # Fill the entire object with white
+            mask.paste(binary_mask)
         else:
-            # Create the border mask based on the options
-            if self.inside_border:
-                # Generate an inner border
-                inner_border = mask.filter(ImageFilter.MinFilter(self.border_size * 2 + 1))
-                border_mask = ImageChops.subtract(mask, inner_border)
-            elif self.centered_border:
-                # Generate a centered border
-                expanded_mask = mask.filter(ImageFilter.MaxFilter(self.border_size))
-                inner_mask = mask.filter(ImageFilter.MinFilter(self.border_size))
-                border_mask = ImageChops.subtract(expanded_mask, inner_mask)
+            if self.centered_border:
+                # Create a centered border, half inside and half outside
+                expanded_mask = binary_mask.filter(ImageFilter.MaxFilter(self.border_size))
+                inner_mask = binary_mask.filter(ImageFilter.MinFilter(self.border_size))
+                mask = ImageChops.subtract(expanded_mask, inner_mask)
+            elif self.inside_border:
+                # Generate an inner border by eroding the mask
+                inner_border = binary_mask.filter(ImageFilter.MinFilter(self.border_size * 2 + 1))
+                mask = ImageChops.subtract(binary_mask, inner_border)
             else:
-                # Generate an outer border
-                expanded_mask = mask.filter(ImageFilter.MaxFilter(self.border_size * 2 + 1))
-                border_mask = ImageChops.subtract(expanded_mask, mask)
+                # Generate an outer border by expanding the mask
+                expanded_mask = binary_mask.filter(ImageFilter.MaxFilter(self.border_size * 2 + 1))
+                mask = ImageChops.subtract(expanded_mask, binary_mask)
 
-            # Start with a full black image
-            final_mask = Image.new("L", resolution, 0)
+        # Convert the mask to a binary (black/white) image
+        final_mask = mask.point(lambda p: 255 if p > 0 else 0)
 
-            # Paste the border mask onto the final black image
-            final_mask.paste(border_mask, (0, 0))
-
-            return final_mask, fg_alpha.size
+        # Return the mask as an image with mode "L" (grayscale)
+        return final_mask
