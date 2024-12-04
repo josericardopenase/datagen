@@ -83,7 +83,7 @@ class HarmonizationDatasetGenerator:
         harmonized_image = self.harmonizer.harmonize(composited_image, harmonization_mask)
         self.logger.info("Inpainting boat borders")
         inside_inpainting_mask, fg_shape = self.generate_inpainting_mask(cleaned_boat, background_cropped_image, fg_shape)
-        outside_inpainting_mask, fg_shape = self.generate_inpainting_mask(cleaned_boat, background_cropped_image, fg_shape)
+        outside_inpainting_mask, fg_shape = self.generate_outside_inpainting_mask(cleaned_boat, background_cropped_image, fg_shape)
         prompt = "A boat"
         inpainted_image = self.inpainter.inpaint(harmonized_image, inside_inpainting_mask, prompt=prompt)
         inpainted_image = self.inpainter.inpaint(inpainted_image, outside_inpainting_mask, prompt=prompt)
