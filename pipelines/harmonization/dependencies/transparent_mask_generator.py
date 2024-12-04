@@ -12,6 +12,15 @@ class TransparentMaskGenerator:
         if image.mode != "RGBA":
             raise ValueError("Image must be in RGBA format")
 
+        # Expand the image size if the border exceeds the image size
+        if self.border_size * 2 > min(image.size):
+            expansion = self.border_size * 2 - min(image.size)
+            new_width = image.width + expansion
+            new_height = image.height + expansion
+            expanded_image = Image.new("RGBA", (new_width, new_height), (0, 0, 0, 0))
+            expanded_image.paste(image, (expansion // 2, expansion // 2))
+            image = expanded_image
+
         # Create a new mask image with the same size, initialized to black (0)
         mask = Image.new("L", image.size, 0)
 
