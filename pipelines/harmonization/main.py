@@ -53,6 +53,7 @@ dataset_saver = YoloDatasetSaver(boat_category=0)
 for x in range(0, 1):
     generated_image, bounding_box = dataset_generator.generate((512, 512), f's_dataset/result_{x}_process.png')
     generated_image.save(f's_dataset/result_{x}.png')
+    print(generated_image, bounding_box)
     dataset_saver.add_training(generated_image, bounding_box)
 
 dataset_saver.save(".")
