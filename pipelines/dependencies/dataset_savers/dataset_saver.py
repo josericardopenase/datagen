@@ -1,7 +1,7 @@
 import hashlib
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Tuple
+from typing import Tuple, List
 
 
 @dataclass
@@ -27,10 +27,10 @@ class DatasetSaver(ABC):
             self.validation_images.append(img)
         self.validation_labels[md5].append(bounding_box)
 
-    def get_train_labels_from_image(self, img) -> list[Tuple[float, float, float, float]]:
+    def get_train_labels_from_image(self, img) -> List[Tuple[float, float, float, float]]:
         return self.train_labels[hashlib.md5(img.tobytes()).hexdigest()]
 
-    def get_val_labels_from_image(self, img) -> list[Tuple[float, float, float, float]]:
+    def get_val_labels_from_image(self, img) -> List[Tuple[float, float, float, float]]:
         return self.validation_labels[hashlib.md5(img.tobytes()).hexdigest()]
 
 

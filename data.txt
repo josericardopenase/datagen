@@ -1,0 +1,19 @@
+OBJECT SNITCH
+
+INTERESANTE! https://dreambooth.github.io/
+
+https://libcom.readthedocs.io/en/latest/api.html#module-libcom.objectstitch
+
+RANKING MEJORES IMAGE HARMONIZATION
+
+https://paperswithcode.com/sota/image-harmonization-on-iharmony4?p=hierarchical-dynamic-image-harmonization
+
+DISTANCIA DE FRECHER, para saber si un dataset es parecido a otro.
+
+- Metrica como de integrado esta el inpainting en la imagen
+    - https://github.com/SayedNadim/Inpainting-Evaluation-Metrics
+- Crop mal echo, baja resolución
+- Respecto a la  elección del puntu utilizar una distribución de probabilidad ej. gaussiana
+  sacar el punto haciendo sampling de la distribucion. Puede ser algo mas "simple"
+  midiendo distancia del centro
+-
