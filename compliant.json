@@ -1,0 +1,10 @@
+[
+  {
+    "block_tempalte": {
+      "name": "BlockName",
+      "inputs": [],
+      "outputs": []
+    },
+    "primitives" : ["number", "text", "boolean", "color", "image", "vector2d", "vector3d"]
+  }
+]
