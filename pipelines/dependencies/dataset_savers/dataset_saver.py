@@ -34,7 +34,6 @@ class DatasetSaver(ABC):
         return self.validation_labels[hashlib.md5(img.tobytes()).hexdigest()]
 
 
-
     @abstractmethod
     def save(self, path: str):
         ...
