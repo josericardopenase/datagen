@@ -145,31 +145,35 @@ class HarmonizationDatasetGenerator:
 
 folder = sys.argv[0] if sys.argv[0] else 0
 
-for x in range(0, 1):
-    dataset_generator = HarmonizationDatasetGenerator(
-        point_extractor=MMSegPointExtractor(MMSegAPI(url="http://100.103.218.9:4553/v1")),
-        background_image_generator=StochasticImageGenerator("assets/"),
-        boat_image_generator=StochasticImageGenerator("assets/boats/"),
-        background_remover=MMSegBackgroundRemover("ship",
-                                                  MMSegAPI(url="http://100.103.218.9:4553/v1")
-                                                  ),
-        image_cropper=ImageCropper(),
-        image_compositor=ImageCompositor(),
-        image_shape_adjuster=TransparentImageAdjuster(),
-        transparent_image_cleaner=TransparentImageCleaner(threshold=0.4),
-        harmonization_mask_generator=TransparentMaskGenerator(fill=True),
-        harmonizer=LibcomImageHarmonizer(),
-        inpainting_inside_mask_generator=TransparentMaskGenerator(fill=False, border_size=21, inside_border=True),
-        inpainting_outside_mask_generator=TransparentMaskGenerator(fill=False, border_size=97),
-        inpainter=StableDiffusionImageInpainter(),
-        image_paster=ImagePaster(),
-        quality_evaluator=QualityEvaluator(
-            image_similarity=LPIPSImageSimilarityEvaluator(),
-            text_image_similarity= CLIPTextImageSimilarityEvaluator(),
-            aesthetic_eval=None,
-            dataset_similarity=FIDDatasetSimilarityEvaluator()
-        ),
-        logger=TerminalLogger()
-    )
-    result = dataset_generator.generate((512, 512), f's_dataset/result_{x}_process.png')
-    result.save(f's_dataset/result_{x}.png')
+for x in range(0, 500):
+    try:
+        dataset_generator = HarmonizationDatasetGenerator(
+            point_extractor=MMSegPointExtractor(MMSegAPI(url="http://100.103.218.9:4553/v1")),
+            background_image_generator=StochasticImageGenerator("assets/bgs"),
+            boat_image_generator=StochasticImageGenerator("assets/boats/with_bg"),
+            background_remover=MMSegBackgroundRemover("ship",
+                                                      MMSegAPI(url="http://100.103.218.9:4553/v1")
+                                                      ),
+            image_cropper=ImageCropper(),
+            image_compositor=ImageCompositor(),
+            image_shape_adjuster=TransparentImageAdjuster(),
+            transparent_image_cleaner=TransparentImageCleaner(threshold=0.4),
+            harmonization_mask_generator=TransparentMaskGenerator(fill=True),
+            harmonizer=LibcomImageHarmonizer(),
+            inpainting_inside_mask_generator=TransparentMaskGenerator(fill=False, border_size=31, inside_border=True),
+            inpainting_outside_mask_generator=TransparentMaskGenerator(fill=False, border_size=97),
+            inpainter=StableDiffusionImageInpainter(),
+            image_paster=ImagePaster(),
+            quality_evaluator=QualityEvaluator(
+                image_similarity=LPIPSImageSimilarityEvaluator(),
+                text_image_similarity= CLIPTextImageSimilarityEvaluator(),
+                aesthetic_eval=None,
+                dataset_similarity=FIDDatasetSimilarityEvaluator()
+            ),
+            logger=TerminalLogger()
+        )
+        result = dataset_generator.generate((512, 512), f's_dataset/result_{x}_process.png')
+        result.save(f's_dataset/result_{x}.png')
+    except Exception as inst:
+        print(inst)
+        
