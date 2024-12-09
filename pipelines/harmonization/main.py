@@ -159,7 +159,7 @@ for x in range(0, 1):
         transparent_image_cleaner=TransparentImageCleaner(threshold=0.4),
         harmonization_mask_generator=TransparentMaskGenerator(fill=True),
         harmonizer=LibcomImageHarmonizer(),
-        inpainting_inside_mask_generator=TransparentMaskGenerator(fill=False, border_size=21, inside_border=True),
+        inpainting_inside_mask_generator=TransparentMaskGenerator(fill=False, border_size=31, inside_border=True),
         inpainting_outside_mask_generator=TransparentMaskGenerator(fill=False, border_size=97),
         inpainter=StableDiffusionImageInpainter(),
         image_paster=ImagePaster(),
