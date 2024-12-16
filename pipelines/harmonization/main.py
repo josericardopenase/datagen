@@ -8,6 +8,7 @@ from pipelines.dependencies.loggers.terminal_logger import TerminalLogger
 from pipelines.dependencies.api.mmseg_api import MMSegAPI
 from pipelines.dependencies.point_extractors.mmseg_point_extractor import MMSegPointExtractor
 from pipelines.dependencies.image_inpainters.stable_diffusion_image_inpainter import StableDiffusionImageInpainter
+from pipelines.dependencies.image_inpainters.dalle2_image_inpainter import Dalle2ImageInpainter
 from pipelines.dependencies.quality_evaluators.dataset_similarity_evaluators.fid_dataset_similarity_evaluator import \
     FIDDatasetSimilarityEvaluator
 from pipelines.dependencies.quality_evaluators.text_image_similarity_evaluators.clip_text_image_similarity_evaluator import \
@@ -33,7 +34,7 @@ dataset_generator = HarmonizationDatasetGenerator(
     harmonizer=LibcomImageHarmonizer(),
     inpainting_inside_mask_generator=TransparentMaskGenerator(fill=False, border_size=17, inside_border=True),
     inpainting_outside_mask_generator=TransparentMaskGenerator(fill=False, border_size=17),
-    inpainter=StableDiffusionImageInpainter(),
+    inpainter=Dalle2ImageInpainter(),
     transparent_image_cleaner=TransparentImageCleaner(threshold=0.4),
     image_paster=ImagePaster(),
     image_cropper=ImageCropper(),
@@ -50,10 +51,10 @@ dataset_generator = HarmonizationDatasetGenerator(
 dataset_saver = YoloDatasetSaver(boat_category=0)
 
 start = timer()
-for x in range(0, 100):
+for x in range(0, 1):
     try:
         generated_image, bounding_box = dataset_generator.generate((512, 512), f's_dataset/result_{x}_process.png')
-        generated_image.save(f's_dataset/result_{x}.png')
+        generated_image.save(f'result_{x}.png')
         normalized_bounding_box = (bounding_box[0]/generated_image.size[0],
                                    bounding_box[1]/generated_image.size[1],
                                    bounding_box[2]/generated_image.size[0],
