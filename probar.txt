@@ -1,0 +1,2 @@
+1. Poner barcos sobre imagen transparente y hacer inpainting para rellenar la imágen
+2. 

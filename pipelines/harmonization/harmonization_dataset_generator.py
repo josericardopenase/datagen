@@ -121,7 +121,7 @@ class HarmonizationDatasetGenerator:
 
     def generate_harmonization_mask(self, cleaned_boat, cropped_image):
         composited_harmonization_mask, fg_shape = self.image_compositor.composite(
-            background=Image.new("RGB", cropped_image.size, color=(0, 0, 0)),
+            background=Image.new("RGBA", cropped_image.size, color=(0, 0, 0)),
             foreground=self.harmonization_mask_generator.generate(cleaned_boat),
             center=(cropped_image.size[0] // 2, cropped_image.size[1] // 2),
             size_of=0.55

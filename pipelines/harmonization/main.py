@@ -1,5 +1,6 @@
 import sys
 from pipelines.dependencies.background_removers.mmseg_background_remover import MMSegBackgroundRemover
+from pipelines.dependencies.background_removers.mock_background_remover import MockBackgroundRemover
 from pipelines.dependencies.dataset_savers.yolo_dataset_saver import YoloDatasetSaver
 from pipelines.dependencies.image_generators.sthocastic_image_generator import StochasticImageGenerator
 from pipelines.dependencies.image_harmonizers.libcom_image_harmonizer import LibcomImageHarmonizer
@@ -21,19 +22,17 @@ from pipelines.harmonization.dependencies.transparent_image_adjuster import Tran
 from pipelines.harmonization.dependencies.transparent_image_cleaner import TransparentImageCleaner
 from pipelines.harmonization.dependencies.transparent_mask_generator import TransparentMaskGenerator
 from pipelines.harmonization.harmonization_dataset_generator import HarmonizationDatasetGenerator
+from timeit import default_timer as timer
 
-folder = sys.argv[0] if sys.argv[0] else 0
 dataset_generator = HarmonizationDatasetGenerator(
     point_extractor=MMSegPointExtractor(MMSegAPI(url="http://100.103.218.9:4553/v1")),
-    background_image_generator=StochasticImageGenerator("assets/"),
-    boat_image_generator=StochasticImageGenerator("assets/boats/"),
-    background_remover=MMSegBackgroundRemover("ship",
-                                              MMSegAPI(url="http://100.103.218.9:4553/v1")
-                                              ),
+    background_image_generator=StochasticImageGenerator("assets/bgs"),
+    boat_image_generator=StochasticImageGenerator("assets/boats/without_bg"),
+    background_remover=MockBackgroundRemover(),
     harmonization_mask_generator=TransparentMaskGenerator(fill=True),
     harmonizer=LibcomImageHarmonizer(),
-    inpainting_inside_mask_generator=TransparentMaskGenerator(fill=False, border_size=31, inside_border=True),
-    inpainting_outside_mask_generator=TransparentMaskGenerator(fill=False, border_size=97),
+    inpainting_inside_mask_generator=TransparentMaskGenerator(fill=False, border_size=17, inside_border=True),
+    inpainting_outside_mask_generator=TransparentMaskGenerator(fill=False, border_size=17),
     inpainter=StableDiffusionImageInpainter(),
     transparent_image_cleaner=TransparentImageCleaner(threshold=0.4),
     image_paster=ImagePaster(),
@@ -50,13 +49,19 @@ dataset_generator = HarmonizationDatasetGenerator(
 )
 dataset_saver = YoloDatasetSaver(boat_category=0)
 
-for x in range(0, 1):
-    generated_image, bounding_box = dataset_generator.generate((512, 512), f's_dataset/result_{x}_process.png')
-    generated_image.save(f's_dataset/result_{x}.png')
-    print(generated_image, bounding_box)
-    normalized_bounding_box = (bounding_box[0]/generated_image.size[0],
-                               bounding_box[1]/generated_image.size[1],
-                               bounding_box[2]/generated_image.size[0],
-                               bounding_box[3]/generated_image.size[1])
-    dataset_saver.add_training(generated_image, normalized_bounding_box)
+start = timer()
+for x in range(0, 100):
+    try:
+        generated_image, bounding_box = dataset_generator.generate((512, 512), f's_dataset/result_{x}_process.png')
+        generated_image.save(f's_dataset/result_{x}.png')
+        normalized_bounding_box = (bounding_box[0]/generated_image.size[0],
+                                   bounding_box[1]/generated_image.size[1],
+                                   bounding_box[2]/generated_image.size[0],
+                                   bounding_box[3]/generated_image.size[1])
+        dataset_saver.add_training(generated_image.convert("RGB"), normalized_bounding_box)
+    except:
+        ...
+
+end = timer()
+print("Time of creation: ", end-start)
 dataset_saver.save("yolo_dataset")
